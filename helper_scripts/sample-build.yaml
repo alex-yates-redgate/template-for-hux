@@ -1,0 +1,35 @@
+- stage: Build
+    pool: $(AGENT_POOL)
+    displayName: ${{parameters.buildStage.displayName}} 
+    jobs:
+    - job: Build
+      variables:
+      - group: ${{parameters.buildStage.variableGroupName}}
+      - group: rg_flyway_vars
+      steps:
+        
+        - script: '$(FLYWAY) clean info -url="_JDBC_"'
+          failOnStderr: true
+          displayName: 'Clean Build DB'
+          condition: eq('${{ parameters.buildStage.executeBuild }}', 'true')
+          env:
+            FLYWAY_CLEAN_DISABLED: false
+ 
+        - script: '$(FLYWAY) migrate info -url="_JDBC_" -baselineVersion=$(BASELINE_VERSION)'
+          failOnStderr: true
+          condition: eq('${{ parameters.buildStage.executeBuild }}', 'true')
+          displayName: 'Validate Migrate Scripts'
+ 
+        - script: '$(FLYWAY) undo info -url="_JDBC_" -target="$(FIRST_UNDO_SCRIPT)"?'
+          continueOnError: true
+          condition: eq('${{ parameters.buildStage.executeBuild }}', 'true')
+          displayName: 'Validate Undo Scripts'
+ 
+        - task: CopyFiles@2
+          inputs:
+            targetFolder: '$(System.ArtifactsDirectory)' 
+ 
+        - task: PublishBuildArtifacts@1
+          displayName: 'Publish Build Artifact'
+          inputs:
+            ArtifactName: '$(BUILD_NAME)'

@@ -1,0 +1,5 @@
+# Ignore everything in the output directory
+output/*
+
+# But track the directory itself
+!output/.gitkeep
