@@ -5,6 +5,12 @@ To build a sample YAML pipeline, open a PowerShell terminal, clone this repo, ru
 For example:
 
 > cd "C:\git"
+
+
 > git clone https://github.com/alex-yates-redgate/template-for-hux.git
+
+
 > cd template-for-hux
+
+
 > .\build_yaml.ps1
